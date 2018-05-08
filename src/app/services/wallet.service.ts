@@ -95,18 +95,18 @@ export class WalletService {
   unlockWallet(wallet: Wallet, seed: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       let currentSeed = this.ascii_to_hexa(seed);
-      wallet.seed = seed;
       wallet.addresses.forEach(address => {
         const fullAddress = this.cipherProvider.generateAddress(currentSeed);
         if (fullAddress.address !== address.address) {
-          return reject(new Error('Wrong seed'));
+          throw new Error('Wrong seed');
         }
         address.next_seed = fullAddress.next_seed;
         address.secret_key = fullAddress.secret_key;
         address.public_key = fullAddress.public_key;
         currentSeed = fullAddress.next_seed;
       });
-
+      
+      wallet.seed = seed;
       this.updateWallet(wallet);
       return resolve();
     });
