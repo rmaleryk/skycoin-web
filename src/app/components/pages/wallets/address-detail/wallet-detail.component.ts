@@ -44,9 +44,10 @@ export class WalletDetailComponent {
     }
   }
 
-  copyAddress(address) {
-    const selBox = document.createElement('textarea');
+  copyAddress(event, address) {
+    event.stopPropagation();
 
+    const selBox = document.createElement('textarea');
     selBox.style.position = 'fixed';
     selBox.style.left = '0';
     selBox.style.top = '0';
@@ -65,7 +66,7 @@ export class WalletDetailComponent {
     // wait for a while and then remove the 'copying' class
     setTimeout(() => {
       address.isCopying = false;
-    }, 500);
+    }, 1000);
   }
 
   toggleEmpty() {
