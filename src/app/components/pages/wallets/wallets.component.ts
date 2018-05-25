@@ -32,7 +32,8 @@ export class WalletsComponent implements OnInit {
     this.dialog.open(CreateWalletComponent, config);
   }
 
-  unlockWallet(wallet: Wallet) {
+  unlockWallet(event, wallet: Wallet) {
+    event.stopPropagation();
     openUnlockWalletModal(wallet, this.dialog);
   }
 

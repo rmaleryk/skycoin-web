@@ -32,6 +32,7 @@
   line-height: $row-height;
   height: $row-height;
   padding-left: 20px;
+  cursor: pointer;
 
   &:first-child {
     border-top-left-radius: 15px;
@@ -73,10 +74,6 @@
     margin-left: 0;
     height: $row-detail-size;
     width: $row-detail-size;
-  }
-
-  .-expand{
-    cursor: pointer;
   }
 }
 
