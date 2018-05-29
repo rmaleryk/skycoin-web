@@ -57,4 +57,13 @@ describe('Onboarding Create', () => {
     expect<any>(page.skipWizard()).toContain('/wallets');
   });
 
+  it('should create existing wallet to get an error', () => {
+    page.navigateTo();
+    expect<any>(page.createExistingWallet()).toEqual(false);
+  });
+
+  it('should load existing wallet to get an error', () => {
+    page.navigateTo();
+    expect<any>(page.loadExistingWallet()).toEqual(false);
+  });
 });
