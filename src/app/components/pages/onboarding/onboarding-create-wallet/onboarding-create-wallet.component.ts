@@ -3,6 +3,8 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import * as Bip39 from 'bip39';
+import { MatSnackBar, MatSnackBarConfig } from '@angular/material';
+
 import { WalletService } from '../../../../services/wallet.service';
 import { DoubleButtonActive } from '../../../layout/double-button/double-button.component';
 import { OnboardingDisclaimerComponent } from './onboarding-disclaimer/onboarding-disclaimer.component';
@@ -24,6 +26,7 @@ export class OnboardingCreateWalletComponent implements OnInit {
     private walletService: WalletService,
     private router: Router,
     private formBuilder: FormBuilder,
+    private snackBar: MatSnackBar
   ) { }
 
   ngOnInit() {
@@ -93,13 +96,25 @@ export class OnboardingCreateWalletComponent implements OnInit {
   }
 
   createWallet() {
-    this.walletService.create(this.form.value.label, this.form.value.seed);
-    this.showSafe();
+    try {
+      this.walletService.create(this.form.value.label, this.form.value.seed);
+      this.showSafe();
+    } catch (exception) {
+      const config = new MatSnackBarConfig();
+      config.duration = 5000;
+      this.snackBar.open(exception.message, null, config);
+    }
   }
 
   loadWallet() {
-    this.walletService.create(this.form.value.label, this.form.value.seed);
-    this.skip();
+    try {
+      this.walletService.create(this.form.value.label, this.form.value.seed);
+      this.skip();
+    } catch (exception) {
+      const config = new MatSnackBarConfig();
+      config.duration = 5000;
+      this.snackBar.open(exception.message, null, config);
+    }
   }
 
   skip() {

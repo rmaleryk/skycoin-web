@@ -65,8 +65,15 @@ export class WalletService {
       seed: seed,
       addresses: [this.cipherProvider.generateAddress(this.ascii_to_hexa(seed))]
     };
-    this.addWallet(wallet);
-    this.loadBalances();
+
+    this.all.first().subscribe((wallets: Wallet[]) => {
+      if (wallets.some((w: Wallet) => w.addresses[0].address === wallet.addresses[0].address)) {
+        throw new Error('trying to add an existing wallet!');
+      }
+
+      this.addWallet(wallet);
+      this.loadBalances();
+    });
   }
 
   sendSkycoin(wallet: Wallet, address: string, amount: number) {
