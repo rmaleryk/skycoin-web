@@ -8,7 +8,7 @@ import { MatTooltip } from '@angular/material';
 })
 
 export class ButtonComponent {
-  @Input() disabled: any;
+  @Input() disabled: boolean;
   @Input() emit = false;
   @Output() action = new EventEmitter();
   @ViewChild('tooltip') tooltip: MatTooltip;
@@ -44,6 +44,10 @@ export class ButtonComponent {
 
   setDisabled() {
     this.disabled = true;
+  }
+
+  setEnabled() {
+    this.disabled = false;
   }
 
   resetState() {

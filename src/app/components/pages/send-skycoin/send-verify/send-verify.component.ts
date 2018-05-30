@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild, OnDestroy } from '@angular/core';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material';
 
 import { PreviewTransaction } from '../../../../app.datatypes';
@@ -10,7 +10,7 @@ import { ButtonComponent } from '../../../layout/button/button.component';
   templateUrl: './send-verify.component.html',
   styleUrls: ['./send-verify.component.scss'],
 })
-export class SendVerifyComponent {
+export class SendVerifyComponent implements OnDestroy {
   @ViewChild('sendButton') sendButton: ButtonComponent;
   @ViewChild('backButton') backButton: ButtonComponent;
   @Input() transaction: PreviewTransaction;
@@ -38,6 +38,10 @@ export class SendVerifyComponent {
     this.onBack.emit(false);
   }
 
+  ngOnDestroy() {
+    this.snackbar.dismiss();
+  }
+
   private onSuccess() {
     this.sendButton.setSuccess();
     this.sendButton.setDisabled();
@@ -47,6 +51,8 @@ export class SendVerifyComponent {
   }
 
   private onError(error) {
+    this.backButton.setEnabled();
+
     const config = new MatSnackBarConfig();
     config.duration = 300000;
     this.snackbar.open(error.message, null, config);
