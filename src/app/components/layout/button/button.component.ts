@@ -34,8 +34,13 @@ export class ButtonComponent {
   }
 
   setError(error: any) {
-    this.error = typeof error === 'string' ? error : error['_body'];
     this.state = 2;
+    
+    if(error == null) {
+      return;
+    }
+
+    this.error = typeof error === 'string' ? error : error['_body'];
 
     setTimeout(() => {
       if (this.mouseOver) {
