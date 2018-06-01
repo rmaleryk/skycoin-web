@@ -28,6 +28,7 @@ export class WalletService {
   private lastBalancesUpdateTime: Date;
   private refreshBalancesTimeInSec: number;
   private intervalTime: number;
+  private updatingBalance: boolean;
 
   private readonly allocationRatio = 0.25;
   private readonly unburnedHoursRatio = 0.5;
@@ -89,54 +90,6 @@ export class WalletService {
 
       this.saveWallets(wallets);
       this.loadBalances();
-    });
-  }
-
-  sendSkycoin(wallet: Wallet, address: string, amount: number) {
-    const addresses = wallet.addresses.map(a => a.address).join(',');
-
-    return this.apiService.getOutputs(addresses).flatMap((outputs: Output[]) => {
-      const minRequiredOutputs =  this.getMinRequiredOutputs(amount, outputs);
-      const totalCoins = parseInt((minRequiredOutputs.reduce((count, output) =>
-        count + output.coins, 0) * 1000000) + '', 10);
-
-      const convertedAmount = parseInt(amount * 1000000 + '', 10);
-
-      if (totalCoins < convertedAmount) {
-        throw new Error('Not enough available SKY Hours to perform transaction!');
-      }
-
-      const totalHours = parseInt((minRequiredOutputs.reduce((count, output) =>
-        count + output.calculated_hours, 0)) + '', 10);
-      const changeCoins = totalCoins - convertedAmount;
-      let hoursToSend = parseInt((totalHours * this.allocationRatio) + '', 10);
-
-      const txOutputs: TransactionOutput[] = [];
-      const txInputs: TransactionInput[] = [];
-      const calculatedHours = parseInt((totalHours * this.unburnedHoursRatio) + '', 10);
-
-      if (changeCoins > 0) {
-        txOutputs.push({
-          address: wallet.addresses[0].address,
-          coins: changeCoins,
-          hours: calculatedHours - hoursToSend
-        });
-      } else {
-        hoursToSend = calculatedHours;
-      }
-
-      txOutputs.push({ address: address, coins: convertedAmount, hours: hoursToSend });
-
-      minRequiredOutputs.forEach(input => {
-        txInputs.push({
-          hash: input.hash,
-          secret: wallet.addresses.find(a => a.address === input.address).secret_key,
-        });
-      });
-
-      const rawTransaction = this.cipherProvider.prepareTransaction(txInputs, txOutputs);
-
-      return this.apiService.postTransaction(rawTransaction);
     });
   }
 
@@ -310,30 +263,39 @@ export class WalletService {
   }
 
   loadBalances() {
+    if (this.updatingBalance) {
+      return;
+    }
+
+    this.updatingBalance = true;
+
     this.addresses.first().subscribe((addresses: Address[]) => {
-      this.retrieveAddressesBalance(addresses)
-        .subscribe((balance: Balance) => {
-          this.wallets.first().subscribe(wallets => {
-            if (balance.addresses) {
-              wallets.map((wallet: Wallet) => {
-                wallet.addresses.map((address: Address) => {
-                  if (balance.addresses[address.address]) {
-                    address.balance = balance.addresses[address.address].confirmed.coins / this.coinsMultiplier;
-                    address.hours = balance.addresses[address.address].confirmed.hours;
-                  }
-                });
-
-                wallet.balance = wallet.addresses.map(address => address.balance >= 0 ? address.balance : 0).reduce((a , b) => a + b, 0);
-                wallet.hours = wallet.addresses.map(address => address.hours >= 0 ? address.hours : 0).reduce((a , b) => a + b, 0);
-              });
-            }
-
-            this.calculateTotalBalance(wallets);
-            const hasPendingTxs = this.refreshPendingTransactions(balance);
-            this.resetBalancesUpdateTime(hasPendingTxs);
-          });
-        });
+      this.retrieveAddressesBalance(addresses).subscribe(
+        (balance: Balance) => { this.wallets.first().subscribe(wallets => this.calculateBalance(wallets, balance)); },
+        () => this.updatingBalance = false,
+        () => this.updatingBalance = false
+      );
     });
+  }
+
+  private calculateBalance(wallets: Wallet[], balance: Balance) {
+    if (balance.addresses) {
+      wallets.map((wallet: Wallet) => {
+        wallet.addresses.map((address: Address) => {
+          if (balance.addresses[address.address]) {
+            address.balance = balance.addresses[address.address].confirmed.coins / this.coinsMultiplier;
+            address.hours = balance.addresses[address.address].confirmed.hours;
+          }
+        });
+
+        wallet.balance = wallet.addresses.map(address => address.balance >= 0 ? address.balance : 0).reduce((a , b) => a + b, 0);
+        wallet.hours = wallet.addresses.map(address => address.hours >= 0 ? address.hours : 0).reduce((a , b) => a + b, 0);
+      });
+    }
+
+    this.calculateTotalBalance(wallets);
+    const hasPendingTxs = this.refreshPendingTransactions(balance);
+    this.resetBalancesUpdateTime(hasPendingTxs);
   }
 
   private generateRawTransaction(txInputs: TransactionInput[], txOutputs: TransactionOutput[]) {
