@@ -27,13 +27,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
   current: number;
   highest: number;
   isBlockchainLoading = false;
+  isBalanceLoaded = false;
   private price: number;
   private priceSubscription: Subscription;
   private walletSubscription: Subscription;
   private blockchainSubscription: Subscription;
 
   get loading() {
-    return this.isBlockchainLoading || !this.balance;
+    return this.isBlockchainLoading || !this.balance || !this.isBalanceLoaded;
   }
 
   constructor(
@@ -64,6 +65,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
           this.hours = balance.hours;
 
           this.calculateBalance();
+          this.isBalanceLoaded = true;
         }
       });
 
