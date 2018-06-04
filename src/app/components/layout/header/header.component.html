@@ -2,7 +2,7 @@
   <app-disclaimer-warning></app-disclaimer-warning>
 
   <div class="large-header">
-    <app-top-bar [headline]="headline"></app-top-bar>
+    <app-top-bar [headline]="headline" [isBalanceLoaded]="isBalanceLoaded"></app-top-bar>
     <div class="balance-container">
       <div class="balance">
         <p *ngIf="!highest && loading" class="loading-header">{{ 'header.loading' | translate}}</p>

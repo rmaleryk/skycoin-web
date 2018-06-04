@@ -10,6 +10,7 @@ import { WalletService } from '../../../../services/wallet.service';
 })
 export class TopBarComponent implements OnInit, OnDestroy {
   @Input() headline: string;
+  @Input() isBalanceLoaded: boolean;
 
   timeSinceLastUpdateBalances = 0;
   private updateBalancesSubscription: Subscription;
