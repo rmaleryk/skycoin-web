@@ -33,9 +33,12 @@ export class UnlockWalletComponent implements OnInit {
   }
 
   unlockWallet() {
+    this.unlockButton.setLoading();
+
     this.walletService.unlockWallet(this.data, this.form.value.seed)
     .then(
       () => {
+        this.unlockButton.setSuccess();
         this.dialogRef.close();
         this.onWalletUnlocked.emit();
       },
