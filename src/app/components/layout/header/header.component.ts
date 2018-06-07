@@ -94,6 +94,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.current = response.current;
     }
 
+    if (!this.isBlockchainLoading && !this.isBalanceLoaded) {
+      this.querying = true;
+    }
+
     this.percentage = response.current && response.highest ? (response.current / response.highest) : 0;
   }
 
