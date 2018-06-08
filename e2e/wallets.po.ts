@@ -1,4 +1,4 @@
-import { browser, by, element } from 'protractor';
+import { browser, by, element, ExpectedConditions } from 'protractor';
 
 export class WalletsPage {
   navigateTo() {
@@ -231,30 +231,6 @@ export class WalletsPage {
     });
   }
 
-  canUnlock() {
-     return this.unlockFirstWallet().then(result => {
-       if (result) {
-          return element.all(by.css('.-wallet .-encryption img')).first().getAttribute('src').then(source => {
-            return source.includes('unlock-grey.png');
-          });
-        } else {
-          return false;
-        }
-      });
-  }
-
-  unlockFirstWallet(): any {
-    return element.all(by.css('.-encryption img')).first().click().then(() => {
-      const seed = element(by.css('[formcontrolname="seed"]'));
-      const btnUnlock = element(by.buttonText('Unlock'));
-      return seed.sendKeys('skycoin-web-e2e-test-seed').then(() => {
-        return btnUnlock.click().then(() => {
-          return true;
-        });
-      });
-    });
-  }
-
   showAddAddress() {
     return element.all(by.css('.-wallet')).first().click().then(() => {
       return element(by.css('.btn-add-address')).isPresent();
@@ -267,12 +243,23 @@ export class WalletsPage {
     });
   }
 
+  canUnlockWallet() {
+    return element.all(by.css('.-encryption img')).first().click().then(() => {
+      return this.unlockWallet().then(() => {
+        return element.all(by.css('.-wallet .-encryption img')).first().getAttribute('src').then(source => {
+          return source.includes('unlock-grey.png');
+        });
+      });
+    });
+  }
+
   unlockWallet() {
     const seed = element(by.css('[formcontrolname="seed"]'));
     seed.clear();
     seed.sendKeys('skycoin-web-e2e-test-seed');
 
     return element(by.buttonText('Unlock')).click().then(() => {
+      browser.wait(ExpectedConditions.invisibilityOf(element(by.css('app-unlock-wallet'))), 10000);
       return (element(by.css('app-unlock-wallet')).isPresent()).then((result) => {
         return !result;
       });
@@ -280,6 +267,7 @@ export class WalletsPage {
   }
 
   showPriceInformation() {
+    browser.wait(ExpectedConditions.presenceOf(element(by.css('.balance p.dollars'))), 5000);
     return element(by.css('.balance p.dollars')).getText().then(text => {
       return this._checkHeaderPriceFormat(text);
     });
