@@ -59,16 +59,7 @@ describe('CipherProvider Lib', () => {
     });
 
     it('should pass the verification', done => {
-      actualAddresses.map(address => {
-        const addressFromPubKey = CipherExtras.AddressFromPubKey(address.public_key);
-        const addressFromSecKey = CipherExtras.AddressFromSecKey(address.secret_key);
-
-        expect(addressFromPubKey && addressFromSecKey && addressFromPubKey === addressFromSecKey).toBe(true);
-
-        expect(CipherExtras.VerifySeckey(address.secret_key)).toBe(1);
-        expect(CipherExtras.VerifyPubkey(address.public_key)).toBe(1);
-      });
-
+      verifyAddresses(actualAddresses);
       done();
     });
   });
@@ -101,6 +92,28 @@ describe('CipherProvider Lib', () => {
           testData = getSeedTestData(inputHashes, seedKeys, actualAddresses);
         });
 
+        it('should check number of signatures and hashes', done => {
+          const result = seedKeys.some(key => key.signatures.length !== inputHashes.length);
+
+          expect(result).toEqual(false);
+          done();
+        });
+
+        it('should generate many address correctly', done => {
+          actualAddresses.forEach((address, index) => {
+            expect(address.address).toEqual(seedKeys[index].address);
+            expect(address.public_key).toEqual(seedKeys[index].public);
+            expect(address.secret_key).toEqual(seedKeys[index].secret);
+          });
+
+          done();
+        });
+
+        it('address should pass the verification', done => {
+          verifyAddresses(actualAddresses);
+          done();
+        });
+
         it(`should verify signature correctly`, done => {
           testData.forEach(data => {
             const result = CipherExtras.VerifySignature(data.public_key, data.signature, data.hash);
@@ -128,6 +141,8 @@ describe('CipherProvider Lib', () => {
         it(`should generate public key correctly`, done => {
           testData.forEach(data => {
             const pubKey = CipherExtras.PubKeyFromSig(data.signature, data.hash);
+
+            expect(pubKey).toBeTruthy();
             expect(pubKey === data.public_key).toBeTruthy();
             done();
           });
@@ -170,4 +185,16 @@ function getSeedTestData(inputHashes, seedKeys, actualAddresses) {
   }
 
   return data;
+}
+
+function verifyAddresses(addresses) {
+  addresses.map(address => {
+    const addressFromPubKey = CipherExtras.AddressFromPubKey(address.public_key);
+    const addressFromSecKey = CipherExtras.AddressFromSecKey(address.secret_key);
+
+    expect(addressFromPubKey && addressFromSecKey && addressFromPubKey === addressFromSecKey).toBe(true);
+
+    expect(CipherExtras.VerifySeckey(address.secret_key)).toBe(1);
+    expect(CipherExtras.VerifyPubkey(address.public_key)).toBe(1);
+  });
 }
