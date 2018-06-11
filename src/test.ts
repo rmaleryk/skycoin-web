@@ -28,7 +28,7 @@ getTestBed().initTestEnvironment(
 // Then we find all the tests.
 let context = null;
 
-if (environment.cipherTest) {
+if (environment.cipherTestMode !== 'none') {
   context = require.context('./', true, /cipher\.provider\.lib\.spec\.ts$/);
 } else {
   context = require.context('./', true, /(?!.*?cipher\.provider\.lib\.spec\.ts$)(^.*\.spec\.ts$)/);
