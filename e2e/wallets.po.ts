@@ -269,16 +269,30 @@ export class WalletsPage {
   }
 
   applyDeleteConfirmation() {
-    let walletCount = 0;
-    element.all(by.css('.-wallet')).count().then((count) => walletCount = count);
+    const walletName = 'New Wallet Name';
+    let isWalletExistBefore;
+
+    this.isWalletExist(walletName).then((status) => {
+      isWalletExistBefore = status;
+    });
 
     return element(by.css('.-disclaimer-check-text')).click().then(() => {
       return element(by.buttonText('Yes')).click().then(() => {
         return element.all(by.css('.-wallet')).count().then((count) => {
-          return count < walletCount;
+          return this.isWalletExist(walletName).then((isWalletExistAfter) => {
+            return isWalletExistBefore && !isWalletExistAfter;
+          });
         });
       });
     });
+  }
+
+  isWalletExist(name: string) {
+    return browser.executeScript(`return window.localStorage.getItem('wallets');`)
+      .then((result: string) => {
+        const wallets = JSON.parse(result);
+        return !!wallets.find(wallet => wallet.label === name);
+      });
   }
 
   fillWalletForm(labelText: string, seedText: string, confirmSeedText = null) {
