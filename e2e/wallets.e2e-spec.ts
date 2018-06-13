@@ -72,6 +72,10 @@ describe('Wallets', () => {
     expect<any>(page.showQrDialog()).toEqual(true);
   });
 
+  it('should display correct address in the QR modal', () => {
+    expect<any>(page.checkQrDialogAddress()).toEqual(true);
+  });
+
   it('should hide wallet QR modal', () => {
     expect<any>(page.hideQrDialog()).toEqual(false);
   });
@@ -116,5 +120,27 @@ describe('Wallets', () => {
 
   it('should unlock wallet component on add new address for locked wallet', () => {
     expect<any>(page.unlockWallet()).toEqual(true);
+  });
+
+  it('should add new address after unlocking the wallet', () => {
+    expect<any>(page.checkThirdAddress()).toEqual(true);
+  });
+
+  it('should open delete wallet dialog', () => {
+    expect<any>(page.openDeleteWalletDialog()).toEqual(true);
+  });
+
+  it('should cancel delete wallet dialog', () => {
+    expect<any>(page.cancelDeleteConfirmation()).toEqual(true);
+  });
+
+  it('should apply delete wallet dialog', () => {
+    page.expandWallet().then(() => {
+      page.expandWallet().then(() => {
+        page.openDeleteWalletDialog().then(() => {
+          expect<any>(page.applyDeleteConfirmation()).toEqual(true);
+        });
+      });
+    });
   });
 });
