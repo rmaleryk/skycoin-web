@@ -15,6 +15,7 @@ import { CipherProvider } from './cipher.provider';
 import { Address, Output, NormalTransaction, TransactionInput, TransactionOutput,
   Wallet, TotalBalance, GetOutputsRequestOutput, Balance, Transaction } from '../app.datatypes';
 import { convertAsciiToHexa } from '../utils/converters';
+import { DEFAULT_COIN_ID, SKYCOIN_ID } from '../constants/coins-id';
 
 @Injectable()
 export class WalletService {
@@ -75,7 +76,8 @@ export class WalletService {
         const wallet = {
           label: label,
           seed: seed,
-          addresses: [fullAddress]
+          addresses: [fullAddress],
+          coinId: SKYCOIN_ID
         };
 
         this.all.first().subscribe((wallets: Wallet[]) => {
@@ -344,7 +346,13 @@ export class WalletService {
   private loadWallets() {
     const storedWallets: string = localStorage.getItem('wallets');
     if (storedWallets) {
-      this.wallets.next( JSON.parse(storedWallets) );
+      const wallets: Wallet[] = JSON.parse(storedWallets);
+
+      wallets.map((wallet) => {
+        wallet.coinId = wallet.coinId ? wallet.coinId : DEFAULT_COIN_ID;
+      });
+
+      this.wallets.next(wallets);
     }
   }
 
@@ -353,7 +361,7 @@ export class WalletService {
     wallets.forEach(wallet => {
       const strippedAddresses: Address[] = [];
       wallet.addresses.forEach(address => strippedAddresses.push({ address: address.address }));
-      strippedWallets.push({ label: wallet.label, addresses: strippedAddresses });
+      strippedWallets.push({ label: wallet.label, coinId: wallet.coinId, addresses: strippedAddresses });
     });
     localStorage.setItem('wallets', JSON.stringify(strippedWallets));
     this.wallets.next(wallets);
