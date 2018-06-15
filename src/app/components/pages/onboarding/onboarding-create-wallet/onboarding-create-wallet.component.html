@@ -14,7 +14,7 @@
     </div>
   </div>
   <div class="row justify-content-center">
-    <div class="col-sm-4 -toggle-container">
+    <div class="col-sm-4 -toggle-container" [ngClass]="{ invisible: isWalletCreating }">
       <app-double-button [rightButtonText]="'common.load' | translate"
                          [leftButtonText]="'common.new' | translate"
                          [activeButton]="doubleButtonActive"
@@ -54,7 +54,7 @@
                 (action)="showNewForm ? showSafe() : loadWallet()">
       {{ 'wallet.new.create-button' | translate }}
     </app-button>
-    <app-button *ngIf="haveWallets"
+    <app-button *ngIf="haveWallets && !isWalletCreating"
                 [disabled]="isWalletCreating"
                 class="ghost -button-min-margin"
                 (action)="skip()">

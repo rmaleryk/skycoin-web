@@ -63,3 +63,8 @@ label[for=seed] {
     }
   }
 }
+
+.invisible {
+  opacity: 0;
+  pointer-events: none;
+}
