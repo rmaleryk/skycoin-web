@@ -37,6 +37,8 @@ export class PendingTransactionsComponent implements OnInit, OnDestroy {
   }
 
   private loadTransactions(value: number) {
+    this.transactions = null;
+
     const showAllTransactions = value === DoubleButtonActive.RightButton;
     this.walletService.getAllPendingTransactions()
       .flatMap((transactions: any) => {
@@ -61,6 +63,10 @@ export class PendingTransactionsComponent implements OnInit, OnDestroy {
   }
 
   private getWalletsTransactions(transactions: any): Observable<any> {
+    if (transactions.length === 0) {
+      return Observable.of([]);
+    }
+
     const allTransactions = this.getUpdatedTransactions(transactions);
 
     return Observable.zip(allTransactions, this.walletService.all, (trans: any, wallets: Wallet[]) => {

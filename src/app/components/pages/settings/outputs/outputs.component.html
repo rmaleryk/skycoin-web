@@ -1,6 +1,7 @@
 <div class="sky-container sky-container-grey">
   <app-header [headline]="'title.outputs' | translate"></app-header>
   <div class="container">
+    <app-loading-content [isLoading]="true" *ngIf="!wallets"></app-loading-content>
     <div class="-wallet" *ngFor="let wallet of wallets">
       <div class="-wallet-label">{{ wallet.label }}</div>
       <div class="-wallet-address" *ngFor="let address of wallet.addresses">

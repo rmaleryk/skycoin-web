@@ -131,6 +131,16 @@ mat-spinner.in-button {
     width: 24px !important;
   }
 
+  &.big {
+    height: 36px !important;
+    width: 36px !important;
+
+    svg {
+      height: 36px !important;
+      width: 36px !important;
+    }
+  }
+
   circle {
     stroke: #000;
     opacity: 0.3;
