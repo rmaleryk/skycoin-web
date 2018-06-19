@@ -50,11 +50,11 @@ export class BlockchainService {
           .takeWhile((response: any) => !response.current || !this.isLoaded)
           .subscribe(
             (response: any) => this.onBlockchainProgress(response),
-            () => this.onLoadBlockchainError(ConnectionError.UNAVAILABLE_BACKEND)
+            () => this.onLoadBlockchainError()
           );
         });
       },
-      () => this.onLoadBlockchainError(ConnectionError.UNAVAILABLE_BACKEND)
+      () => this.onLoadBlockchainError()
     );
   }
 
@@ -77,8 +77,10 @@ export class BlockchainService {
     this.walletService.loadBalances();
   }
 
-  private onLoadBlockchainError(error: ConnectionError) {
-    this.progressSubject.next({ isError: true, error: error });
+  private onLoadBlockchainError(error: ConnectionError = ConnectionError.UNAVAILABLE_BACKEND) {
+    this.ngZone.run(() => {
+      this.progressSubject.next({ isError: true, error: error });
+    });
   }
 
   private checkConnectionState(): Observable<any> {
