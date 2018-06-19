@@ -36,7 +36,12 @@ export class BlockchainService {
 
   private loadBlockchainBlocks() {
     this.checkConnectionState().subscribe(
-      () => {
+      (status: any) => {
+        if (status.connections.length === 0) {
+          this.onLoadBlockchainError(ConnectionError.NO_ACTIVE_CONNECTIONS);
+          return;
+        }
+
         this.ngZone.runOutsideAngular(() => {
           IntervalObservable
           .create(90000)
@@ -44,12 +49,12 @@ export class BlockchainService {
           .flatMap(() => this.getBlockchainProgress())
           .takeWhile((response: any) => !response.current || !this.isLoaded)
           .subscribe(
-            response => this.onBlockchainProgress(response),
-            () => { throw new Error(ConnectionError.UNAVAILABLE_BACKEND); }
+            (response: any) => this.onBlockchainProgress(response),
+            () => this.onLoadBlockchainError(ConnectionError.UNAVAILABLE_BACKEND)
           );
         });
       },
-      (error: Error) => this.onLoadBlockchainError(error)
+      () => this.onLoadBlockchainError(ConnectionError.UNAVAILABLE_BACKEND)
     );
   }
 
@@ -72,19 +77,11 @@ export class BlockchainService {
     this.walletService.loadBalances();
   }
 
-  private onLoadBlockchainError(error: Error) {
-    const connectionError = ConnectionError[error.message] || ConnectionError.UNAVAILABLE_BACKEND;
-    this.progressSubject.next({ isError: true, error: connectionError });
+  private onLoadBlockchainError(error: ConnectionError) {
+    this.progressSubject.next({ isError: true, error: error });
   }
 
-  private checkConnectionState(): Observable<ConnectionError> {
-    return this.apiService.get('network/connections')
-      .map(response => {
-        if (response.connections.length === 0) {
-          throw new Error(ConnectionError.NO_ACTIVE_CONNECTIONS);
-        }
-
-        return null;
-      });
+  private checkConnectionState(): Observable<any> {
+    return this.apiService.get('network/connections');
   }
 }
