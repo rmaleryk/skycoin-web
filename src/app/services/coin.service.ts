@@ -23,6 +23,10 @@ export class CoinService {
     this.saveCoin(coin.id);
   }
 
+  getDefalutCoin(): BaseCoin {
+    return this.coins.find((coin: BaseCoin) => coin.id === defaultCoinId);
+  }
+
   private loadCurrentCoin() {
     const storedCoinId = localStorage.getItem(this.storageKey);
     const coinId = storedCoinId ? +storedCoinId : defaultCoinId;

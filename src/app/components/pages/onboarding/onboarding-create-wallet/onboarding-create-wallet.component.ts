@@ -9,6 +9,7 @@ import { WalletService } from '../../../../services/wallet.service';
 import { DoubleButtonActive } from '../../../layout/double-button/double-button.component';
 import { OnboardingDisclaimerComponent } from './onboarding-disclaimer/onboarding-disclaimer.component';
 import { OnboardingSafeguardComponent } from './onboarding-safeguard/onboarding-safeguard.component';
+import { CoinService } from '../../../../services/coin.service';
 
 @Component({
   selector: 'app-onboarding-create-wallet',
@@ -28,7 +29,8 @@ export class OnboardingCreateWalletComponent implements OnInit {
     private walletService: WalletService,
     private router: Router,
     private formBuilder: FormBuilder,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private coinService: CoinService
   ) { }
 
   ngOnInit() {
@@ -48,8 +50,11 @@ export class OnboardingCreateWalletComponent implements OnInit {
   }
 
   initForm() {
+    const defaultCoin = this.coinService.getDefalutCoin();
+
     this.form = this.formBuilder.group({
         label: new FormControl('', [ Validators.required ]),
+        coin: new FormControl(defaultCoin, [ Validators.required ]),
         seed: new FormControl('', [ Validators.required ]),
         confirm_seed: new FormControl()
       },
@@ -98,7 +103,7 @@ export class OnboardingCreateWalletComponent implements OnInit {
     this.createButton.setLoading();
     this.isWalletCreating = true;
 
-    this.walletService.create(this.form.value.label, this.form.value.seed)
+    this.walletService.create(this.form.value.label, this.form.value.seed, this.form.value.coin.id)
       .subscribe(
         () => this.onCreateSuccess(),
         (error) => this.onCreateError(error.message)

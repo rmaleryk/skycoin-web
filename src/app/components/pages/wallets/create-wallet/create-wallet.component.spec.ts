@@ -5,6 +5,7 @@ import { MAT_DIALOG_DATA, MatDialogRef, MatSnackBarModule } from '@angular/mater
 
 import { CreateWalletComponent } from './create-wallet.component';
 import { WalletService } from '../../../../services/wallet.service';
+import { CoinService } from '../../../../services/coin.service';
 
 class MockWalletService {
 }
@@ -13,6 +14,12 @@ class MockWalletService {
 class MockTranslatePipe implements PipeTransform {
   transform() {
     return 'translated value';
+  }
+}
+
+class MockCoinService {
+  getDefalutCoin() {
+    return {};
   }
 }
 
@@ -29,7 +36,8 @@ describe('CreateWalletComponent', () => {
         FormBuilder,
         { provide: MAT_DIALOG_DATA, useValue: {} },
         { provide: WalletService, useClass: MockWalletService },
-        { provide: MatDialogRef, useValue: {} }
+        { provide: MatDialogRef, useValue: {} },
+        { provide: CoinService, useClass: MockCoinService }
       ]
     })
     .compileComponents();

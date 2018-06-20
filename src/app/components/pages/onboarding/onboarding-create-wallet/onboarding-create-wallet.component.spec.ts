@@ -11,6 +11,7 @@ import { OnboardingCreateWalletComponent } from './onboarding-create-wallet.comp
 import { WalletService } from '../../../../services/wallet.service';
 import { Wallet } from '../../../../app.datatypes';
 import { OnboardingDisclaimerComponent } from './onboarding-disclaimer/onboarding-disclaimer.component';
+import { CoinService } from '../../../../services/coin.service';
 
 @Pipe({name: 'translate'})
 class MockTranslatePipe implements PipeTransform {
@@ -23,6 +24,12 @@ class MockWalletService {
   all: Observable<Wallet[]> = Observable.of();
   generateSeed(entropy) {
     return Observable.of('');
+  }
+}
+
+class MockCoinService {
+  getDefalutCoin() {
+    return {};
   }
 }
 
@@ -45,7 +52,8 @@ describe('OnboardingCreateWalletComponent', () => {
       ],
       providers: [
         FormBuilder,
-        { provide: WalletService, useClass: MockWalletService }
+        { provide: WalletService, useClass: MockWalletService },
+        { provide: CoinService, useClass: MockCoinService }
       ],
       schemas: [ NO_ERRORS_SCHEMA ]
     });
