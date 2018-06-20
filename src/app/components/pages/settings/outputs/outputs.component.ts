@@ -49,7 +49,12 @@ export class OutputsComponent implements OnInit {
           return wallet;
         });
       } else {
-        this.wallets = wallets;
+        const copiedWallets = wallets.map(wallet => Object.assign({}, wallet));
+
+        this.wallets = copiedWallets.filter(wallet => {
+          wallet.addresses = wallet.addresses.filter(addr => addr.outputs.length > 0);
+          return wallet.addresses.length > 0;
+        });
       }
     });
   }
