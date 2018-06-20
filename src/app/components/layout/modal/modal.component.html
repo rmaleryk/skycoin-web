@@ -1,6 +1,13 @@
 <div class="-header">
   {{ headline }} <img src="../../../../../assets/img/close-grey.png" class="btn-close" (click)="closePopup()" *ngIf="!disableDismiss">
 </div>
+<mat-progress-bar
+  *ngIf="loadingPercentage != null"
+  class="grey"
+  color="primary"
+  [mode]="'determinate'"
+  [value]="loadingPercentage">
+</mat-progress-bar>
 <div class="-body">
   <ng-content></ng-content>
 </div>
