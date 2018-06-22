@@ -1,4 +1,4 @@
-import { Injectable, NgZone } from '@angular/core';
+import { Injectable, NgZone, EventEmitter } from '@angular/core';
 import 'rxjs/add/observable/forkJoin';
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/first';
@@ -188,11 +188,11 @@ export class WalletService {
     });
   }
 
-  unlockWallet(wallet: Wallet, seed: string): Observable<void> {
+  unlockWallet(wallet: Wallet, seed: string, onProgressChanged: EventEmitter<number>): Observable<void> {
     seed = this.getCleanSeed(seed);
     const currentSeed = convertAsciiToHexa(seed);
 
-    return this.verifyWalletAddresses(currentSeed, wallet)
+    return this.verifyWalletAddresses(currentSeed, wallet, 0, onProgressChanged)
       .map((res: boolean) => {
         if (!res) {
           throw new Error(this.translate.instant('service.wallet.wrong-seed'));
@@ -475,13 +475,15 @@ export class WalletService {
     return seed.replace(/(\n|\r\n)$/, '');
   }
 
-  private verifyWalletAddresses(currentSeed: string, wallet: Wallet, index: number = 0): Observable<boolean> {
+  private verifyWalletAddresses(currentSeed: string, wallet: Wallet, index: number, onProgressChanged: EventEmitter<number>): Observable<boolean> {
     return this.cipherProvider.generateAddress(currentSeed)
       .flatMap((fullAddress: Address) => {
         if (fullAddress.address !== wallet.addresses[index].address) {
+          onProgressChanged.emit(0);
           return Observable.of(false);
         }
 
+        onProgressChanged.emit((index + 1) / wallet.addresses.length * 100);
         wallet.addresses[index] = fullAddress;
         index++;
 
@@ -489,7 +491,7 @@ export class WalletService {
           return Observable.of(true);
         }
 
-        return this.verifyWalletAddresses(fullAddress.next_seed, wallet, index);
+        return this.verifyWalletAddresses(fullAddress.next_seed, wallet, index, onProgressChanged);
       });
   }
 }

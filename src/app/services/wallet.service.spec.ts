@@ -2,6 +2,7 @@ import { TestBed, fakeAsync } from '@angular/core/testing';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { TranslateService } from '@ngx-translate/core';
+import { EventEmitter } from '@angular/core';
 
 import { WalletService } from './wallet.service';
 import { ApiService } from './api.service';
@@ -173,7 +174,7 @@ describe('WalletService', () => {
       const correctSeed = 'seed';
 
       spyCipherProvider.generateAddress.and.returnValue(Observable.of(createAddress()));
-      walletService.unlockWallet(inputWallet, correctSeed);
+      walletService.unlockWallet(inputWallet, correctSeed, new EventEmitter<number>());
 
       walletService.wallets.subscribe((wallets) => {
         expect(wallets[0].seed).toEqual(correctSeed);
@@ -187,7 +188,7 @@ describe('WalletService', () => {
       spyCipherProvider.generateAddress.and.returnValue(Observable.of(wrongSeedAddress));
       spyTranslateService.instant.and.returnValue('Wrong seed');
 
-      walletService.unlockWallet(wallet, 'wrong seed')
+      walletService.unlockWallet(wallet, 'wrong seed', new EventEmitter<number>())
         .subscribe(
           () => fail('should be rejected'),
           (error) => expect(error.message).toBe('Wrong seed')
