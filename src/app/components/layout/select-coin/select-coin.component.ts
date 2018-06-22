@@ -1,4 +1,4 @@
-import { Component, OnInit, forwardRef } from '@angular/core';
+import { Component, OnInit, forwardRef, Output, EventEmitter, Input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { CoinService } from '../../../services/coin.service';
@@ -15,8 +15,9 @@ import { BaseCoin } from '../../../coins/basecoin';
   }]
 })
 export class SelectCoinComponent implements OnInit, ControlValueAccessor {
+  @Output() onCoinChangedCallback = new EventEmitter<BaseCoin>();
+  @Input() selectedCoin: BaseCoin;
   coins: BaseCoin[];
-  selectedCoin: BaseCoin;
 
   private onChangeCallback: any = () => {};
 
@@ -31,6 +32,7 @@ export class SelectCoinComponent implements OnInit, ControlValueAccessor {
   onCoinChanged(coin: BaseCoin) {
     this.selectedCoin = coin;
     this.onChangeCallback(this.selectedCoin);
+    this.onCoinChangedCallback.emit(coin);
   }
 
   writeValue(coin: any) {

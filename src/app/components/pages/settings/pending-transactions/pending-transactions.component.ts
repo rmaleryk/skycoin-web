@@ -30,14 +30,17 @@ export class PendingTransactionsComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    this.coinSubscription = this.coinService.currentCoin
+      .subscribe((coin: BaseCoin) => {
+        this.currentCoin = coin;
+        this.loadTransactions(this.navbarService.activeComponent.getValue());
+      });
+
     this.navbarService.showSwitch('pending-txs.my', 'pending-txs.all', DoubleButtonActive.LeftButton);
 
     this.navbarSubscription = this.navbarService.activeComponent.subscribe(value => {
       this.loadTransactions(value);
     });
-
-    this.coinSubscription = this.coinService.currentCoin
-      .subscribe((coin: BaseCoin) => this.currentCoin = coin);
   }
 
   ngOnDestroy() {
