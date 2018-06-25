@@ -52,6 +52,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.coinSubscription = this.coinService.currentCoin
       .subscribe((coin: BaseCoin) => {
         this.reloadBalance();
+        this.blockchainService.loadBlockchainBlocks();
         this.currentCoin = coin;
       });
 
@@ -106,8 +107,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this.connectionError = null;
     this.isBlockchainLoading = response.highest !== response.current;
-    this.querying = !this.isBlockchainLoading && !this.isBalanceLoaded;
+    this.querying = !this.isBlockchainLoading;
 
     if (this.isBlockchainLoading) {
       this.highest = response.highest;
