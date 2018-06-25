@@ -35,13 +35,9 @@ export class BlockchainService {
   }
 
   private loadBlockchainBlocks() {
-    this.checkConnectionState().subscribe(
-      (status: any) => {
-        if (status.connections.length === 0) {
-          this.onLoadBlockchainError(ConnectionError.NO_ACTIVE_CONNECTIONS);
-          return;
-        }
-
+    this.checkConnectionState()
+      .filter(status => !!status)
+      .subscribe(() => {
         this.ngZone.runOutsideAngular(() => {
           IntervalObservable
           .create(90000)
@@ -84,6 +80,14 @@ export class BlockchainService {
   }
 
   private checkConnectionState(): Observable<any> {
-    return this.apiService.get('network/connections');
+    return this.apiService.get('network/connections')
+      .map((status: any) => {
+        if (status.connections.length === 0) {
+          this.onLoadBlockchainError(ConnectionError.NO_ACTIVE_CONNECTIONS);
+          return Observable.of(null);
+        }
+
+        return Observable.of(status);
+      });
   }
 }
