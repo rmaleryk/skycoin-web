@@ -174,7 +174,7 @@ export class WalletService {
 
   updateWallet(wallet: Wallet, shouldSave: boolean = true) {
     this.wallets.first().subscribe(wallets => {
-      const index = wallets.findIndex(w => w.addresses[0].address === wallet.addresses[0].address);
+      const index = wallets.findIndex(w => w.addresses[0].address === wallet.addresses[0].address && w.coinId === wallet.coinId);
 
       if (index === -1) {
         throw new Error(this.translate.instant('service.wallet.unknown-address'));
