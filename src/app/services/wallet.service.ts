@@ -91,8 +91,9 @@ export class WalletService {
           coinId: coinId
         };
 
-        this.all.first().subscribe((wallets: Wallet[]) => {
-          if (wallets.some((w: Wallet) => w.addresses[0].address === wallet.addresses[0].address)) {
+        this.wallets.first().subscribe((wallets: Wallet[]) => {
+          if (wallets.some((w: Wallet) =>
+            w.addresses[0].address === wallet.addresses[0].address && w.coinId === wallet.coinId)) {
             throw new Error(this.translate.instant('service.wallet.wallet-exists'));
           }
 
