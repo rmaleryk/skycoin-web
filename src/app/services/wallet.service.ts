@@ -297,7 +297,7 @@ export class WalletService {
 
     this.updatingBalance = true;
 
-    this.addresses.first().subscribe((addresses: Address[]) => {
+    this.addresses.subscribe((addresses: Address[]) => {
       if (addresses.length === 0) {
         this.breakUpdatingBalance({ coins: 0, hours: 0 });
         return;
