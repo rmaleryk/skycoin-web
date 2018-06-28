@@ -8,6 +8,7 @@ import { ConnectionError } from '../../../enums/connection-error.enum';
 import { TotalBalance } from '../../../app.datatypes';
 import { CoinService } from '../../../services/coin.service';
 import { BaseCoin } from '../../../coins/basecoin';
+import { LanguageService } from '../../../services/language.service';
 
 @Component({
   selector: 'app-header',
@@ -28,6 +29,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   current: number;
   highest: number;
   currentCoin: BaseCoin;
+  currentLanguage: string;
+  langs: string[];
 
   private isBlockchainLoading = true;
   private isBalanceLoaded = false;
@@ -36,6 +39,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private walletSubscription: ISubscription;
   private blockchainSubscription: ISubscription;
   private coinSubscription: ISubscription;
+  private languageSubscription: ISubscription;
 
   get loading() {
     return this.isBlockchainLoading || !this.balance || !this.isBalanceLoaded;
@@ -45,10 +49,19 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private priceService: PriceService,
     private walletService: WalletService,
     private blockchainService: BlockchainService,
-    private coinService: CoinService
-  ) {}
+    private coinService: CoinService,
+    private languageService: LanguageService
+  ) {
+  }
 
   ngOnInit() {
+    this.langs = this.languageService.langs;
+
+    this.languageSubscription = this.languageService.currentLanguage
+      .subscribe((language: string) => {
+        this.currentLanguage = language;
+      });
+
     this.coinSubscription = this.coinService.currentCoin
       .subscribe((coin: BaseCoin) => {
         this.reloadBlockchain();
@@ -81,15 +94,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
       .subscribe(hasPendingTxs => this.hasPendingTxs = hasPendingTxs);
   }
 
-  onCoinChanged(coin: BaseCoin) {
-    this.coinService.changeCoin(coin);
-  }
-
   ngOnDestroy() {
     this.priceSubscription.unsubscribe();
     this.walletSubscription.unsubscribe();
     this.blockchainSubscription.unsubscribe();
     this.coinSubscription.unsubscribe();
+    this.languageSubscription.unsubscribe();
+  }
+
+  onCoinChanged(coin: BaseCoin) {
+    this.coinService.changeCoin(coin);
+  }
+
+  onLanguageChanged(lang: string) {
+    this.languageService.changeLanguage(lang);
   }
 
   private reloadBalance() {
